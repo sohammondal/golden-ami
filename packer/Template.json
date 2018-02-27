@@ -47,20 +47,14 @@
     "region": "eu-west-1",
     "source_ami": "ami-c90195b0",
     "instance_type": "t2.micro",
-    "vpc_id": "vpc-0f75a269",
-    "subnet_id":"subnet-de2bd396",
-    "security_group_id": "sg-5f3d8125",
-    "ssh_interface": "private_ip",
     "ssh_username": "ec2-user",
-    "ssh_keypair_name": "israr-sandpit-key",
-    "ssh_private_key_file": "./Packer/israr-sandpit-key.pem",
-    "ami_name": "packer-linux {{isotime \"02-Jan-06 03-04 am\"}}",
+    "ami_name": "packer-rhel{{isotime \"02-Jan-06 03-04 am\"}}",
 	"tags": {
-		"Name":"Packer Linux AMI",
+		"Name":"Packer RHEL AMI",
 		"Business Unit":"Enterprise"
 	},
 	"ami_description": "RHEL with Ansible,AWS Inspector Agent,AWS CLI,AWS CloudWatch Monitoring Scripts,AWS SSM Agent.",
-  "associate_public_ip_address": "false"
+  "associate_public_ip_address": "true"
 
 	}
   ]
