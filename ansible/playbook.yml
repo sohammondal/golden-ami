@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+  remote_user: root
+  pre_tasks:
+    - name: install packages for testing under docker
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - selinux-policy
+        - libselinux-python
+        - openssh-server
+        - which
+    - name: Permission
+      shell: echo "export PATH=/root/.local/bin:$PATH" >> /etc/bashrc
+  roles:
+    - role: RHEL7-CIS
