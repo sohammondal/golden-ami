@@ -13,7 +13,7 @@
       "source_ami": "ami-223f945a",
       "instance_type": "t2.micro",
       "ssh_username": "ec2-user",
-      "ami_name": "packer-rhel{{isotime \"02-Jan-06 03-04 am\"}}",
+      "ami_name": "packer-rhel {{isotime \"02-Jan-06 03-04 am\"}}",
   	"tags": {
   		"Name":"Packer RHEL AMI",
   		"Business Unit":"Enterprise"
