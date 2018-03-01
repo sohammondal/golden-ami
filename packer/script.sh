@@ -9,27 +9,27 @@ export PATH=/usr/local/bin:/usr/bin:/root/.local/bin:$PATH
 
 #WGET & UNZIP
 echo "*************************Installing wget and unzip*************************"
-yum -y install wget unzip python34
+sudo yum -y install wget unzip python34
 
 
 echo "*************************Installing dependency for ansible*************************"
-yum install gcc libffi-devel python-devel openssl-devel -y #dependency for ansible #need python-devel
+sudo yum install gcc libffi-devel python-devel openssl-devel -y #dependency for ansible #need python-devel
 
 
 # PIP,ANSIBLE & DEPENDENCIES
 echo "*************************Installing pip*************************"
-curl -O https://bootstrap.pypa.io/get-pip.py
-python3 get-pip.py --user
+sudo curl -O https://bootstrap.pypa.io/get-pip.py
+sudo python3 get-pip.py --user
 
 echo "*************************Installing ansible*************************"
-pip install ansible==2.4.3.0
+sudo pip install ansible==2.4.3.0
 
 
 #AWS Inspector
 echo "*************************Installing AWS Inspector*************************"
 sudo wget https://d1wk0tztpsntt1.cloudfront.net/linux/latest/install
-bash install
-rm -rf install
+sudo bash install
+sudo rm -rf install
 
 #AWS CLI
 echo "*************************Installing AWS CLI*************************"
@@ -37,11 +37,11 @@ sudo pip install awscli --upgrade --user
 
 #AWS CloudWatch
 echo "*************************Installing AWS CloudWatchMonitoringScripts*************************"
-yum install perl-Switch perl-DateTime perl-Sys-Syslog perl-LWP-Protocol-https -y
-mkdir aws-cloudwatch
-cd aws-cloudwatch
-curl http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip -O
-unzip CloudWatchMonitoringScripts-1.2.1.zip
+sudo yum install perl-Switch perl-DateTime perl-Sys-Syslog perl-LWP-Protocol-https -y
+sudo mkdir aws-cloudwatch
+sudo cd aws-cloudwatch
+sudo curl http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip -O
+sudo unzip CloudWatchMonitoringScripts-1.2.1.zip
 rm CloudWatchMonitoringScripts-1.2.1.zip
 cd aws-scripts-mon/
 echo -e 'AWSAccessKeyId={{user `aws_access_key`}}\nAWSSecretKey={{user `aws_secret_key`}}' > awscreds.conf
