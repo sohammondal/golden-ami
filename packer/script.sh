@@ -48,9 +48,9 @@ echo -e 'AWSAccessKeyId={{user `aws_access_key`}}\nAWSSecretKey={{user `aws_secr
 
 #AWS SSM Agent
 cd /tmp
-yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
-systemctl start amazon-ssm-agent
-systemctl enable amazon-ssm-agent
+sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+sudo systemctl start amazon-ssm-agent
+sudo systemctl enable amazon-ssm-agent
 
 export AWS_ACCESS_KEY_ID={{user `aws_access_key`}}
 export AWS_SECRET_ACCESS_KEY={{user `aws_secret_key`}}
