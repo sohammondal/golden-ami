@@ -29,11 +29,11 @@
   "provisioners": [
   {
         "type": "shell",
-        "script":"./script2.sh"
+        "script":"./packer/script2.sh"
   },
   {
   "type": "ansible",
-  "playbook_file": "./playbook.yml"
+  "playbook_file": "./ansible/playbook.yml"
   }
 ]
 }
