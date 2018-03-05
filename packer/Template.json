@@ -1,37 +1,40 @@
 {
  "variables":{
-	"aws_access_key": "{{env `aws_access_key`}}",
-    	"aws_secret_key": "{{env `aws_secret_key`}}"
-	},
+        "aws_access_key": "{{env `aws_access_key`}}",
+        "aws_secret_key": "{{env `aws_secret_key`}}"
+        },
 
    "builders": [
-  	{
+        {
       "type": "amazon-ebs",
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "us-west-2",
       "source_ami": "ami-223f945a",
+      "vpc_id": "vpc-0ee17f77",
+      "subnet_id":"subnet-aab27ad3",
       "ssh_interface": "private_ip",
       "instance_type": "t2.micro",
       "ssh_username": "ec2-user",
       "ami_name": "packer-rhel {{isotime \"02-Jan-06 03-04 am\"}}",
-  	"tags": {
-  		"Name":"Packer RHEL AMI",
-  		"Business Unit":"Enterprise"
-  	},
-  	"ami_description": "RHEL with Ansible,AWS Inspector Agent,AWS CLI,AWS CloudWatch Monitoring Scripts,AWS SSM Agent.",
+        "tags": {
+                "Name":"Packer RHEL AMI",
+                "Business Unit":"Enterprise"
+        },
+        "ami_description": "RHEL with Ansible,AWS Inspector Agent,AWS CLI,AWS CloudWatch Monitoring Scripts,AWS SSM Agent.",
     "associate_public_ip_address": "true"
 
-  	}
+        }
   ],
   "provisioners": [
   {
-	"type": "shell",
-	"script":"./packer/script2.sh"
+        "type": "shell",
+        "script":"./script2.sh"
   },
   {
   "type": "ansible",
-  "playbook_file": "./ansible/playbook.yml"
+  "playbook_file": "./playbook.yml"
   }
 ]
 }
+
