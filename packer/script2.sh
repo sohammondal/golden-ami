@@ -14,7 +14,7 @@ sudo curl http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringS
 unzip CloudWatchMonitoringScripts-1.2.1.zip
 rm CloudWatchMonitoringScripts-1.2.1.zip
 cd aws-scripts-mon/
-echo -e 'AWSAccessKeyId={{user `aws_access_key`}}\nAWSSecretKey=3vXLL+bR6jvDQy1G9D+oqGmRV3oRXQZo7kGtReJR' > awscreds.conf
+echo -e 'AWSAccessKeyId={{user `aws_access_key`}}\nAWSSecretKey={{user `aws_secret_key`}}' > awscreds.conf
 cd /tmp
 sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
 sudo systemctl start amazon-ssm-agent
