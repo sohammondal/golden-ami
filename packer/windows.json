@@ -16,17 +16,16 @@
 
     "capture_container_name": "images",
     "capture_name_prefix": "packer",
-
     "os_type": "Windows",
     "image_publisher": "MicrosoftWindowsServer",
     "image_offer": "WindowsServer",
     "image_sku": "2012-R2-Datacenter",
-
     "communicator": "winrm",
     "winrm_use_ssl": "true",
     "winrm_insecure": "true",
     "winrm_timeout": "3m",
     "winrm_username": "packer",
+
 
     "location": "West US",
     "vm_size": "Standard_DS2_v2"
