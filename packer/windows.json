@@ -6,9 +6,9 @@
     "client_secret": "NQA0qrlmkM85yoAKbzutXfkHyC9vH2THcWg1wYe6590=",
     "tenant_id": "d33011ac-695a-474f-80f4-9207372df1e4",
     "subscription_id": "505a17f3-6019-4221-b9c8-e28eea2d8603",
-    "object_id": "a7dfb070-0d5b-47ac-b9a5-cf214fff0ae2",
 
-    "managed_image_resource_group_name": "myResourceGroup",
+
+    "managed_image_resource_group_name": "CloudPractice",
     "managed_image_name": "myPackerImage",
 
     "os_type": "Windows",
@@ -27,7 +27,7 @@
         "task": "Image deployment"
     },
 
-    "location": "East US",
+    "location": "West US",
     "vm_size": "Standard_DS2_v2"
   }],
   "provisioners": [
