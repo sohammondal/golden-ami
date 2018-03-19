@@ -1,33 +1,33 @@
 {
-  "variables": {
-    "client_id": "{{env `ARM_CLIENT_ID`}}",
-    "client_secret": "{{env `ARM_CLIENT_SECRET`}}",
-    "resource_group": "{{env `ARM_RESOURCE_GROUP`}}",
-    "subscription_id": "{{env `ARM_SUBSCRIPTION_ID`}}",
-    "tenant_id": "{{env `ARM_TENANT_ID`}}"
-  },
   "builders": [{
     "type": "azure-arm",
-    "client_id": "{{user `client_id`}}",
-    "client_secret": "{{user `client_secret`}}",
-    "resource_group_name": "{{user `resource_group`}}",
-    "subscription_id": "{{user `subscription_id`}}",
-    "tenant_id": "{{user `tenant_id`}}",
 
-    "capture_container_name": "images",
-    "capture_name_prefix": "packer",
+    "client_id": "134bee92-b0c3-4ea9-a769-e44fcbfe1dc0",
+    "client_secret": "NQA0qrlmkM85yoAKbzutXfkHyC9vH2THcWg1wYe6590=",
+    "tenant_id": "d33011ac-695a-474f-80f4-9207372df1e4",
+    "subscription_id": "505a17f3-6019-4221-b9c8-e28eea2d8603",
+    "object_id": "a7dfb070-0d5b-47ac-b9a5-cf214fff0ae2",
+
+    "managed_image_resource_group_name": "myResourceGroup",
+    "managed_image_name": "myPackerImage",
+
     "os_type": "Windows",
     "image_publisher": "MicrosoftWindowsServer",
     "image_offer": "WindowsServer",
-    "image_sku": "2012-R2-Datacenter",
+    "image_sku": "2016-Datacenter",
+
     "communicator": "winrm",
     "winrm_use_ssl": "true",
     "winrm_insecure": "true",
     "winrm_timeout": "3m",
     "winrm_username": "packer",
 
+    "azure_tags": {
+        "dept": "Engineering",
+        "task": "Image deployment"
+    },
 
-    "location": "West US",
+    "location": "East US",
     "vm_size": "Standard_DS2_v2"
   }],
   "provisioners": [
