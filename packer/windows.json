@@ -9,7 +9,7 @@
 
 
     "managed_image_resource_group_name": "CloudPractice",
-    "managed_image_name": "myPackerImage",
+    "managed_image_name": "Chef-Windows",
 
     "os_type": "Windows",
     "image_publisher": "MicrosoftWindowsServer",
