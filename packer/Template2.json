@@ -30,6 +30,10 @@
   {
         "type": "shell",
         "script":"./packer/script.sh"
+  },
+  {
+  "type": "ansible",
+  "playbook_file": "./ansible/playbook.yml"
   }
 ],
 "post-processors": [

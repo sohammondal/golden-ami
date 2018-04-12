@@ -1,0 +1,577 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'Security: Setup AWS Inspector Pipeline based on existing tag conventions'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: EC2 Tags used by Inspector
+        Parameters:
+          - EC2Tag1Key
+          - EC2Tag1Value
+          - EC2Tag2Key
+          - EC2Tag2Value
+          - EC2Tag3Key
+          - EC2Tag3Value
+          - EC2Tag4Key
+          - EC2Tag4Value
+          - EC2Tag5Key
+          - EC2Tag5Value
+          - EC2Tag6Key
+          - EC2Tag6Value
+          - EC2Tag7Key
+          - EC2Tag7Value
+          - EC2Tag8Key
+          - EC2Tag8Value
+          - EC2Tag9Key
+          - EC2Tag9Value
+          - EC2Tag10Key
+          - EC2Tag10Value
+          - EC2Tag11Key
+          - EC2Tag11Value
+          - EC2Tag12Key
+          - EC2Tag12Value
+          - EC2Tag13Key
+          - EC2Tag13Value
+          - EC2Tag14Key
+          - EC2Tag14Value
+          - EC2Tag15Key
+          - EC2Tag15Value
+Parameters:
+  InspectorDuration:
+    Description: Time(sec) duration for Inspector
+    Type: Number
+    Default: '900'
+  RunInspectorKey:
+    Description: Key Name for Inspector Run Lambda Function
+    Type: String
+    Default: lambda/InspectorRunner.zip
+  SendNotificationKey:
+    Description: Key Name for Send Notification Lambda Function
+    Type: String
+    Default: lambda/InspectorAssessmentMail.zip
+  TopicNameSES:
+    Description: Topic Name for SNS triggerring SES Lambda
+    Type: String
+  ValueResourceGroup:
+    Description: Attribute Value for Inspector Resource Group
+    Type: String
+  KeyResourceGroup:
+    Description: Attribute Key for Inspector Resource Group
+    Type: String
+  AssessmentTemplateNamePara:
+    Description: What to name the AWS Inspector Assessment Template
+    Type: String
+    Default: inspector-assessment-template
+  AssessmentTargetNamePara:
+    Description: What to name the AWS Inspector Assessment Target
+    Type: String
+    Default: inspector-assessment-target
+  EC2Tag1Key:
+    Description: Tag 1 name
+    Type: String
+    Default: Environment
+  EC2Tag1Value:
+    Description: Tag 1 value
+    Type: String
+    Default: Development
+  EC2Tag2Key:
+    Description: Tag 2 name
+    Type: String
+    Default: Environment
+  EC2Tag2Value:
+    Description: Tag 2 value
+    Type: String
+    Default: dev
+  EC2Tag3Key:
+    Description: Tag 3 name
+    Type: String
+    Default: Environment
+  EC2Tag3Value:
+    Description: Tag 3 value
+    Type: String
+    Default: Dev
+  EC2Tag4Key:
+    Description: Tag 4 name
+    Type: String
+    Default: Environment
+  EC2Tag4Value:
+    Description: Tag 4 value
+    Type: String
+    Default: development
+  EC2Tag5Key:
+    Description: Tag 5 name
+    Type: String
+    Default: Environment
+  EC2Tag5Value:
+    Description: Tag 5 value
+    Type: String
+    Default: Production
+  EC2Tag6Key:
+    Description: Tag 6 name
+    Type: String
+    Default: Environment
+  EC2Tag6Value:
+    Description: Tag 6 value
+    Type: String
+    Default: prod
+  EC2Tag7Key:
+    Description: Tag 7 name
+    Type: String
+    Default: Environment
+  EC2Tag7Value:
+    Description: Tag 7 value
+    Type: String
+    Default: Prod
+  EC2Tag8Key:
+    Description: Tag 8 name
+    Type: String
+    Default: Environment
+  EC2Tag8Value:
+    Description: Tag 8 value
+    Type: String
+    Default: Preview
+  EC2Tag9Key:
+    Description: Tag 9 name
+    Type: String
+    Default: Environment
+  EC2Tag9Value:
+    Description: Tag 9 value
+    Type: String
+    Default: preview
+  EC2Tag10Key:
+    Description: Tag 10 name
+    Type: String
+    Default: Environment
+  EC2Tag10Value:
+    Description: Tag 10 value
+    Type: String
+    Default: Staging
+  EC2Tag11Key:
+    Description: Tag 11 name
+    Type: String
+    Default: Environment
+  EC2Tag11Value:
+    Description: Tag 11 value
+    Type: String
+    Default: staging
+  EC2Tag12Key:
+    Description: Tag 12 name
+    Type: String
+    Default: Environment
+  EC2Tag12Value:
+    Description: Tag 12 value
+    Type: String
+    Default: Stage
+  EC2Tag13Key:
+    Description: Tag 13 name
+    Type: String
+    Default: Environment
+  EC2Tag13Value:
+    Description: Tag 13 value
+    Type: String
+    Default: stage
+  EC2Tag14Key:
+    Description: Tag 14 name
+    Type: String
+    Default: ''
+  EC2Tag14Value:
+    Description: Tag 14 value
+    Type: String
+    Default: ''
+  EC2Tag15Key:
+    Description: Tag 15 name
+    Type: String
+    Default: ''
+  EC2Tag15Value:
+    Description: Tag 15 value
+    Type: String
+    Default: ''
+Mappings:
+  RegionMap:
+    us-east-1:
+      inspectorAccount: '316112463485'
+    us-west-2:
+      inspectorAccount: '758058086616'
+    us-west-1:
+      inspectorAccount: '166987590008'
+    eu-west-1:
+      inspectorAccount: '357557129151'
+    eu-central-1:
+      inspectorAccount: '537503971621'
+    ap-northeast-1:
+      inspectorAccount: '406045910587'
+    ap-northeast-2:
+      inspectorAccount: '526946625049'
+    ap-southeast-2:
+      inspectorAccount: '454640832652'
+    ap-south-1:
+      inspectorAccount: '162588757376'
+  RulesPackageIds:
+    us-east-1:
+      '1': 0-R01qwB5Q
+      '2': 0-gBONHN9h
+      '3': 0-gEjTy7T7
+      '4': 0-rExsr2X8
+    us-west-1:
+      '1': 0-TKgzoVOa
+      '2': 0-byoQRFYm
+      '3': 0-xUY8iRqX
+      '4': 0-yeYxlt0x
+    us-west-2:
+      '1': 0-9hgA516p
+      '2': 0-H5hpSawc
+      '3': 0-JJOtZiqQ
+      '4': 0-vg5GGHSD
+    eu-west-1:
+      '1': 0-SnojL3Z6
+      '2': 0-lLmwe1zd
+      '3': 0-sJBhCr0F
+      '4': 0-ubA5XvBh
+    eu-central-1:
+      '1': 0-0GMUM6fg
+      '2': 0-ZujVHEPB
+      '3': 0-nZrAVuv8
+      '4': 0-wNqHa8M9
+    ap-northeast-1:
+      '1': 0-7WNjqgGu
+      '2': 0-bBUQnxMq
+      '3': 0-gHP9oWNT
+      '4': 0-knGBhqEu
+    ap-northeast-2:
+      '1': 0-2WRpmi4n
+      '2': 0-PoGHMznc
+      '3': 0-PoYq7lI7
+      '4': 0-T9srhg1z
+    ap-southeast-2:
+      '1': 0-D5TGAxiR
+      '2': 0-P8Tel2Xj
+      '3': 0-Vkd2Vxjq
+      '4': 0-asL6HRgN
+    ap-south-1:
+      '1': 0-EhMQZy6C
+      '2': 0-LqnJE9dO
+      '3': 0-PSUlX14m
+      '4': 0-fs0IZZBj
+Resources:
+  lambdaInspectorRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: LambdaInspectorRoleAccess
+            Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+          - Sid: AwsInspectorRoleAccess
+            Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service: inspector.amazonaws.com
+            Condition:
+              StringEquals:
+                'sts:ExternalId': !Ref 'AWS::AccountId'
+  AWSInspectorServiceRoleInlinePolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'ec2:DescribeInstances'
+            Resource:
+              - '*'
+      PolicyName: AWSInspectorServiceRoleInlinePolicy
+      Roles:
+        - !Ref lambdaInspectorRole
+  LambdaRoleInlinePolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:PutLogEvents'
+            Resource: 'arn:aws:logs:*:*:*'
+          - Effect: Allow
+            Action:
+              - 'sns:*'
+              - 'iam:ListAccount*'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'inspector:*'
+              - 'ec2:DescribeInstances'
+              - 'ec2:DescribeTags'
+              - 'ec2:TerminateInstances'
+              - 'ec2:StopInstances'
+              - 'ec2:DetachVolume'
+              - 'ec2:DeleteVolume'
+              - 's3:PutObject'
+              - 'S3:ListBucket'
+              - 's3:PutObjectAcl'
+              - 'ses:SendEmail'
+            Resource: '*'
+      PolicyName: LambdaRoleInlinePolicy
+      Roles:
+        - !Ref LambdaRole
+  lambdaInspectorInlinePolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:PutLogEvents'
+            Resource: 'arn:aws:logs:*:*:*'
+          - Effect: Allow
+            Action:
+              - 'inspector:Create*'
+              - 'inspector:SubscribeToEvent'
+              - 'inspector:DescribeFindings'
+              - 'inspector:ListAssessmentRuns'
+              - 'inspector:ListAssessmentTemplates'
+              - 'inspector:ListFindings'
+              - 'inspector:StartAssessmentRun'
+              - 'inspector:RegisterCrossAccountAccessRole'
+              - 'lambda:InvokeFunction'
+              - 'iam:List*'
+              - 'iam:PassRole'
+            Resource: '*'
+      PolicyName: LambdaInspectorInlinePolicy
+      Roles:
+        - !Ref lambdaInspectorRole
+  InspectorRunnerLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt 
+        - lambdaInspectorRole
+        - Arn
+      Environment:
+        Variables:
+          SnsTopicToPushInspectorFindings: !Ref SnsTopicToPushInspectorFindings
+          AWSInspectorServiceRole: !GetAtt 
+            - lambdaInspectorRole
+            - Arn
+          Template: !GetAtt 
+            - AssessmentTemplateName
+            - Arn
+          EC2Tag1Key: !Ref EC2Tag1Key
+          EC2Tag1Value: !Ref EC2Tag1Value
+          EC2Tag2Key: !Ref EC2Tag2Key
+          EC2Tag2Value: !Ref EC2Tag2Value
+          EC2Tag3Key: !Ref EC2Tag3Key
+          EC2Tag3Value: !Ref EC2Tag3Value
+          EC2Tag4Key: !Ref EC2Tag4Key
+          EC2Tag4Value: !Ref EC2Tag4Value
+          EC2Tag5Key: !Ref EC2Tag5Key
+          EC2Tag5Value: !Ref EC2Tag5Value
+          EC2Tag6Key: !Ref EC2Tag6Key
+          EC2Tag6Value: !Ref EC2Tag6Value
+          EC2Tag7Key: !Ref EC2Tag7Key
+          EC2Tag7Value: !Ref EC2Tag7Value
+          EC2Tag8Key: !Ref EC2Tag8Key
+          EC2Tag8Value: !Ref EC2Tag8Value
+          EC2Tag9Key: !Ref EC2Tag9Key
+          EC2Tag9Value: !Ref EC2Tag9Value
+          EC2Tag10Key: !Ref EC2Tag10Key
+          EC2Tag10Value: !Ref EC2Tag10Value
+          EC2Tag11Key: !Ref EC2Tag11Key
+          EC2Tag11Value: !Ref EC2Tag11Value
+          EC2Tag12Key: !Ref EC2Tag12Key
+          EC2Tag12Value: !Ref EC2Tag12Value
+          EC2Tag13Key: !Ref EC2Tag13Key
+          EC2Tag13Value: !Ref EC2Tag13Value
+          EC2Tag14Key: !Ref EC2Tag14Key
+          EC2Tag14Value: !Ref EC2Tag14Value
+          EC2Tag15Key: !Ref EC2Tag15Key
+          EC2Tag15Value: !Ref EC2Tag15Value
+      Code:
+        S3Bucket: cfn-template-edfe
+        S3Key: !Ref RunInspectorKey
+      Runtime: python2.7
+      MemorySize: 256
+      Timeout: 300
+  CallInspectorLambda:
+    Type: 'Custom::LambdaCallout'
+    Properties:
+      ServiceToken: !GetAtt 
+        - InspectorRunnerLambdaFunction
+        - Arn
+    DependsOn: InspectorRunnerLambdaFunction
+  AssessmentTargetName:
+    Type: 'AWS::Inspector::AssessmentTarget'
+    Properties:
+      AssessmentTargetName: !Ref AssessmentTargetNamePara
+      ResourceGroupArn: !GetAtt 
+        - AssesmentResourceGroup
+        - Arn
+  AssessmentTemplateName:
+    Type: 'AWS::Inspector::AssessmentTemplate'
+    Properties:
+      AssessmentTargetArn: !GetAtt 
+        - AssessmentTargetName
+        - Arn
+      DurationInSeconds: !Ref InspectorDuration
+      AssessmentTemplateName: !Ref AssessmentTemplateNamePara
+      RulesPackageArns:
+        - !Join 
+          - ''
+          - - !Sub 
+              - 'arn:aws:inspector:${region}'
+              - region: !Ref 'AWS::Region'
+            - !Sub 
+              - ':${ruleAccount}:rulespackage/'
+              - ruleAccount: !FindInMap 
+                  - RegionMap
+                  - !Ref 'AWS::Region'
+                  - inspectorAccount
+            - !Sub 
+              - '${rulePackage}'
+              - rulePackage: !FindInMap 
+                  - RulesPackageIds
+                  - !Ref 'AWS::Region'
+                  - '1'
+        - !Join 
+          - ''
+          - - !Sub 
+              - 'arn:aws:inspector:${region}'
+              - region: !Ref 'AWS::Region'
+            - !Sub 
+              - ':${ruleAccount}:rulespackage/'
+              - ruleAccount: !FindInMap 
+                  - RegionMap
+                  - !Ref 'AWS::Region'
+                  - inspectorAccount
+            - !Sub 
+              - '${rulePackage}'
+              - rulePackage: !FindInMap 
+                  - RulesPackageIds
+                  - !Ref 'AWS::Region'
+                  - '2'
+        - !Join 
+          - ''
+          - - !Sub 
+              - 'arn:aws:inspector:${region}'
+              - region: !Ref 'AWS::Region'
+            - !Sub 
+              - ':${ruleAccount}:rulespackage/'
+              - ruleAccount: !FindInMap 
+                  - RegionMap
+                  - !Ref 'AWS::Region'
+                  - inspectorAccount
+            - !Sub 
+              - '${rulePackage}'
+              - rulePackage: !FindInMap 
+                  - RulesPackageIds
+                  - !Ref 'AWS::Region'
+                  - '3'
+        - !Join 
+          - ''
+          - - !Sub 
+              - 'arn:aws:inspector:${region}'
+              - region: !Ref 'AWS::Region'
+            - !Sub 
+              - ':${ruleAccount}:rulespackage/'
+              - ruleAccount: !FindInMap 
+                  - RegionMap
+                  - !Ref 'AWS::Region'
+                  - inspectorAccount
+            - !Sub 
+              - '${rulePackage}'
+              - rulePackage: !FindInMap 
+                  - RulesPackageIds
+                  - !Ref 'AWS::Region'
+                  - '4'
+  AssesmentResourceGroup:
+    Type: 'AWS::Inspector::ResourceGroup'
+    Properties:
+      ResourceGroupTags:
+        - Key: !Ref KeyResourceGroup
+          Value: !Ref ValueResourceGroup
+  InspectorSNSTopicPolicy:
+    Type: 'AWS::SNS::TopicPolicy'
+    Properties:
+      PolicyDocument:
+        Id: InspectorSNSPolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: InspectorSNSPolicy
+            Effect: Allow
+            Principal:
+              AWS: !Sub 
+                - 'arn:aws:iam::${ruleAccount}:root'
+                - ruleAccount: !FindInMap 
+                    - RegionMap
+                    - !Ref 'AWS::Region'
+                    - inspectorAccount
+            Action:
+              - 'sns:Subscribe'
+              - 'sns:Publish'
+            Resource: '*'
+      Topics:
+        - !Ref SnsTopicToPushInspectorFindings
+  SnsTopicToPushInspectorFindings:
+    Type: 'AWS::SNS::Topic'
+    Properties:
+      Subscription:
+        - Endpoint: !GetAtt 
+            - InspectorToSnsLambdaFunction
+            - Arn
+          Protocol: lambda
+      TopicName: !Ref TopicNameSES
+  LambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: LambdaInspectorRoleAccess
+            Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+          - Sid: AwsInspectorRoleAccess
+            Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service: inspector.amazonaws.com
+            Condition:
+              StringEquals:
+                'sts:ExternalId': !Ref 'AWS::AccountId'
+  InspectorToSnsLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: cfn-template-edfe
+        S3Key: !Ref SendNotificationKey
+      Handler: index.handler
+      MemorySize: 256
+      Role: !GetAtt 
+        - LambdaRole
+        - Arn
+      Runtime: python2.7
+      Environment:
+        Variables:
+          Template: !GetAtt 
+            - AssessmentTemplateName
+            - Arn
+      Timeout: 300
+  PermissionForEventsToInvokeLambda:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      Principal: sns.amazonaws.com
+      SourceArn: !Ref SnsTopicToPushInspectorFindings
+      FunctionName: !GetAtt 
+        - InspectorToSnsLambdaFunction
+        - Arn
